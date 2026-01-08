@@ -63,3 +63,52 @@ Object.defineProperty(globalThis.navigator, 'mediaDevices', {
   },
   writable: true,
 });
+
+// Mock Canvas API
+class MockCanvasRenderingContext2D {
+  fillStyle: string | CanvasGradient | CanvasPattern = '#000000';
+  strokeStyle: string | CanvasGradient | CanvasPattern = '#000000';
+  lineWidth: number = 1;
+  font: string = '10px sans-serif';
+
+  clearRect() {}
+  fillRect() {}
+  strokeRect() {}
+  fillText() {}
+  strokeText() {}
+  beginPath() {}
+  closePath() {}
+  moveTo() {}
+  lineTo() {}
+  arc() {}
+  stroke() {}
+  fill() {}
+  scale() {}
+  translate() {}
+  rotate() {}
+  save() {}
+  restore() {}
+
+  createLinearGradient() {
+    return {
+      addColorStop: () => {},
+    } as CanvasGradient;
+  }
+
+  createRadialGradient() {
+    return {
+      addColorStop: () => {},
+    } as CanvasGradient;
+  }
+
+  measureText(text: string) {
+    return { width: text.length * 8 } as TextMetrics;
+  }
+}
+
+HTMLCanvasElement.prototype.getContext = function(contextId: string) {
+  if (contextId === '2d') {
+    return new MockCanvasRenderingContext2D() as unknown as CanvasRenderingContext2D;
+  }
+  return null;
+} as unknown as typeof HTMLCanvasElement.prototype.getContext;
