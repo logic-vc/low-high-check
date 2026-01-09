@@ -26,7 +26,7 @@ export interface RangeRendererOptions {
 }
 
 const DEFAULT_OPTIONS: Required<RangeRendererOptions> = {
-  backgroundColor: '#001a33', // Neon blue dark
+  backgroundColor: '#002b4d', // Lighter neon blue dark
   gradientColors: ['#001a33', '#003366', '#0066cc', '#00ccff'], // Dark to bright neon blue
   showLabels: true,
   animationDuration: 300,
@@ -74,6 +74,7 @@ export class RangeRenderer {
   public render(): void {
     this.clearCanvas();
     this.drawBackground();
+    this.drawFrequencyGuides();
     if (this.highlightedMin !== null && this.highlightedMax !== null) {
       this.drawHighlightedRange();
     }
@@ -105,6 +106,42 @@ export class RangeRenderer {
 
     this.ctx.fillStyle = gradient;
     this.ctx.fillRect(0, yMax, this.canvas.width / this.pixelRatio, yMin - yMax);
+  }
+
+  private drawFrequencyGuides(): void {
+    const height = this.canvas.height / this.pixelRatio;
+    const width = this.canvas.width / this.pixelRatio;
+
+    // Draw frequency guide lines for common notes
+    const guides = [
+      { freq: 65.41, label: 'C2' },
+      { freq: 130.81, label: 'C3' },
+      { freq: 261.63, label: 'C4' },
+      { freq: 523.25, label: 'C5' },
+      { freq: 1046.5, label: 'C6' },
+      { freq: 2093.0, label: 'C7' },
+    ];
+
+    this.ctx.strokeStyle = 'rgba(0, 204, 255, 0.2)';
+    this.ctx.lineWidth = 1;
+    this.ctx.fillStyle = 'rgba(0, 204, 255, 0.6)';
+    this.ctx.font = '11px sans-serif';
+
+    guides.forEach(({ freq, label }) => {
+      if (freq < this.options.minFrequency || freq > this.options.maxFrequency) return;
+
+      const y = frequencyToYPosition(freq, height, this.options.minFrequency, this.options.maxFrequency);
+
+      // Draw horizontal line
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, y);
+      this.ctx.lineTo(width, y);
+      this.ctx.stroke();
+
+      // Draw label
+      this.ctx.fillText(label, 10, y - 5);
+      this.ctx.fillText(`${freq.toFixed(0)}Hz`, 10, y + 15);
+    });
   }
 
   private drawLabels(): void {
