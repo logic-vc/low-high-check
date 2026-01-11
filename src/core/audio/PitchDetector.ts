@@ -189,19 +189,25 @@ export class PitchDetector {
 
     // Check if signal is loud enough (RMS amplitude)
     const amplitude = this.calculateRMS(buffer);
+    console.log('Audio amplitude:', amplitude.toFixed(4), 'threshold:', this.options.amplitudeThreshold);
+
     if (amplitude < this.options.amplitudeThreshold) {
       // Signal too quiet - likely silence
+      console.log('Signal too quiet, below threshold');
       this.emitPitch(null);
       return;
     }
 
     // Detect pitch using the algorithm
     const frequency = this.pitchDetectAlgorithm(buffer);
+    console.log('YIN detected frequency:', frequency);
 
     // Validate detected frequency
     if (frequency && this.isValidVocalFrequency(frequency)) {
+      console.log('Valid vocal frequency:', frequency);
       this.emitPitch(frequency);
     } else {
+      console.log('Invalid or no frequency detected');
       this.emitPitch(null);
     }
   }
