@@ -74,13 +74,7 @@ export class RangeRenderer {
   public render(): void {
     this.clearCanvas();
     this.drawBackground();
-    this.drawFrequencyGuides();
-    if (this.highlightedMin !== null && this.highlightedMax !== null) {
-      this.drawHighlightedRange();
-    }
-    if (this.options.showLabels) {
-      this.drawLabels();
-    }
+    this.drawFrequencyGuides(); // This now draws the piano keyboard
   }
 
   private clearCanvas(): void {
@@ -92,63 +86,98 @@ export class RangeRenderer {
     this.ctx.fillRect(0, 0, this.canvas.width / this.pixelRatio, this.canvas.height / this.pixelRatio);
   }
 
-  private drawHighlightedRange(): void {
-    if (this.highlightedMin === null || this.highlightedMax === null) return;
-
-    const height = this.canvas.height / this.pixelRatio;
-    const yMin = frequencyToYPosition(this.highlightedMin, height, this.options.minFrequency, this.options.maxFrequency);
-    const yMax = frequencyToYPosition(this.highlightedMax, height, this.options.minFrequency, this.options.maxFrequency);
-
-    const gradient = this.ctx.createLinearGradient(0, yMax, 0, yMin);
-    this.options.gradientColors.forEach((color, index) => {
-      gradient.addColorStop(index / (this.options.gradientColors.length - 1), color);
-    });
-
-    this.ctx.fillStyle = gradient;
-    this.ctx.fillRect(0, yMax, this.canvas.width / this.pixelRatio, yMin - yMax);
-  }
 
   private drawFrequencyGuides(): void {
     const height = this.canvas.height / this.pixelRatio;
     const width = this.canvas.width / this.pixelRatio;
 
-    // Draw frequency guide lines for common notes
-    const guides = [
-      { freq: 65.41, label: 'C2' },
-      { freq: 130.81, label: 'C3' },
-      { freq: 261.63, label: 'C4' },
-      { freq: 523.25, label: 'C5' },
-      { freq: 1046.5, label: 'C6' },
-      { freq: 2093.0, label: 'C7' },
-    ];
+    // Draw piano keyboard
+    this.drawPianoKeyboard(width, height);
+  }
 
-    this.ctx.strokeStyle = 'rgba(0, 204, 255, 0.2)';
-    this.ctx.lineWidth = 1;
-    this.ctx.fillStyle = 'rgba(0, 204, 255, 0.6)';
-    this.ctx.font = '11px sans-serif';
+  private drawPianoKeyboard(width: number, height: number): void {
+    // Piano keyboard configuration
+    const startOctave = 2; // C2
+    const endOctave = 6;   // C6
+    const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const blackKeys = ['C#', 'D#', 'F#', 'G#', 'A#'];
 
-    guides.forEach(({ freq, label }) => {
-      if (freq < this.options.minFrequency || freq > this.options.maxFrequency) return;
+    // Calculate frequencies for each note
+    const notes: Array<{name: string, octave: number, freq: number, isBlack: boolean}> = [];
+    for (let octave = startOctave; octave <= endOctave; octave++) {
+      for (const noteName of noteNames) {
+        const freq = this.getNoteFrequency(noteName, octave);
+        if (freq >= 60 && freq <= 1100) { // Filter to vocal range
+          notes.push({
+            name: noteName,
+            octave,
+            freq,
+            isBlack: blackKeys.includes(noteName)
+          });
+        }
+      }
+    }
 
-      const y = frequencyToYPosition(freq, height, this.options.minFrequency, this.options.maxFrequency);
+    // Key dimensions
+    const keyWidth = width * 0.85;
+    const keyHeight = height / notes.filter(n => !n.isBlack).length * 1.4;
+    const blackKeyWidth = keyWidth * 0.6;
 
-      // Draw horizontal line
-      this.ctx.beginPath();
-      this.ctx.moveTo(0, y);
-      this.ctx.lineTo(width, y);
-      this.ctx.stroke();
+    // Draw white keys first
+    notes.filter(n => !n.isBlack).forEach((note) => {
+      const y = frequencyToYPosition(note.freq, height, this.options.minFrequency, this.options.maxFrequency);
+      this.drawPianoKey(5, y - keyHeight / 2, keyWidth, keyHeight, note, false);
+    });
 
-      // Draw label
-      this.ctx.fillText(label, 10, y - 5);
-      this.ctx.fillText(`${freq.toFixed(0)}Hz`, 10, y + 15);
+    // Draw black keys on top
+    notes.filter(n => n.isBlack).forEach((note) => {
+      const y = frequencyToYPosition(note.freq, height, this.options.minFrequency, this.options.maxFrequency);
+      this.drawPianoKey(5, y - keyHeight / 2, blackKeyWidth, keyHeight * 0.65, note, true);
     });
   }
 
-  private drawLabels(): void {
-    // Simplified label drawing
-    this.ctx.fillStyle = '#ffffff';
-    this.ctx.font = '12px sans-serif';
+  private drawPianoKey(x: number, y: number, width: number, height: number, note: {name: string, octave: number, freq: number}, isBlack: boolean): void {
+    const isHighlighted = this.highlightedMin !== null &&
+                         this.highlightedMax !== null &&
+                         note.freq >= this.highlightedMin &&
+                         note.freq <= this.highlightedMax;
+
+    // Draw key background
+    if (isBlack) {
+      this.ctx.fillStyle = isHighlighted ? '#00ccff' : '#1a1a1a';
+    } else {
+      this.ctx.fillStyle = isHighlighted ? '#66e0ff' : '#ffffff';
+    }
+
+    this.ctx.fillRect(x, y, width, height);
+
+    // Draw key border
+    this.ctx.strokeStyle = isBlack ? '#000000' : '#333333';
+    this.ctx.lineWidth = 1;
+    this.ctx.strokeRect(x, y, width, height);
+
+    // Draw label for C notes
+    if (note.name === 'C' && !isBlack) {
+      this.ctx.fillStyle = isHighlighted ? '#ffffff' : '#666666';
+      this.ctx.font = 'bold 10px sans-serif';
+      this.ctx.fillText(`${note.name}${note.octave}`, x + 5, y + height - 5);
+    }
   }
+
+  private getNoteFrequency(noteName: string, octave: number): number {
+    const noteOffsets: {[key: string]: number} = {
+      'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5,
+      'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11
+    };
+
+    // A4 = 440 Hz, MIDI note 69
+    const A4 = 440;
+    const midiNote = (octave + 1) * 12 + noteOffsets[noteName];
+    const A4MidiNote = 69;
+
+    return A4 * Math.pow(2, (midiNote - A4MidiNote) / 12);
+  }
+
 
   public highlightFrequency(frequency: number): void {
     console.log('highlightFrequency called with:', frequency);
