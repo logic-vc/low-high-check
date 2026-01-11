@@ -100,9 +100,15 @@ export class PitchDetector {
     // Initialize pitch detection algorithm (YIN)
     // YIN is robust for vocal pitch detection with harmonics
     const sampleRate = this.audioManager.getSampleRate();
-    this.pitchDetectAlgorithm = Pitchfinder.YIN({
+    console.log('Initializing YIN with sample rate:', sampleRate, 'threshold:', 1 - this.options.confidenceThreshold);
+
+    // Try AMDF first as it's more robust for noisy environments
+    this.pitchDetectAlgorithm = Pitchfinder.AMDF({
       sampleRate,
-      threshold: 1 - this.options.confidenceThreshold, // YIN uses inverted threshold
+      minFrequency: 65,
+      maxFrequency: 1400,
+      sensitivity: 0.1,
+      ratio: 5,
     });
   }
 
@@ -278,9 +284,12 @@ export class PitchDetector {
     // Recreate algorithm if relevant options changed
     if (options.confidenceThreshold !== undefined || options.bufferSize !== undefined) {
       const sampleRate = this.audioManager.getSampleRate();
-      this.pitchDetectAlgorithm = Pitchfinder.YIN({
+      this.pitchDetectAlgorithm = Pitchfinder.AMDF({
         sampleRate,
-        threshold: 1 - this.options.confidenceThreshold,
+        minFrequency: 65,
+        maxFrequency: 1400,
+        sensitivity: 0.1,
+        ratio: 5,
       });
     }
   }

@@ -72,6 +72,8 @@ export function VocalRangeTracker() {
       audioManager.connectStream(stream);
       audioManagerRef.current = audioManager;
 
+      console.log('Sample rate:', audioManager.getSampleRate());
+
       // Initialize pitch detector
       const detector = new PitchDetector(audioManager, {
         confidenceThreshold: 0.85,
