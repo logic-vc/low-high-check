@@ -151,11 +151,14 @@ export class RangeRenderer {
   }
 
   public highlightFrequency(frequency: number): void {
+    console.log('highlightFrequency called with:', frequency);
     if (this.highlightedMin === null || frequency < this.highlightedMin) {
       this.highlightedMin = frequency;
+      console.log('Updated highlightedMin:', this.highlightedMin);
     }
     if (this.highlightedMax === null || frequency > this.highlightedMax) {
       this.highlightedMax = frequency;
+      console.log('Updated highlightedMax:', this.highlightedMax);
     }
 
     if (this.lowestFreq === null || frequency < this.lowestFreq) {

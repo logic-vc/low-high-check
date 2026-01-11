@@ -56,13 +56,16 @@ export function VocalRangeTracker() {
   }, [currentFrequency, vocalRangeState]);
 
   const startMeasurement = async () => {
+    console.log('Starting measurement...');
     setMeasurementState('requesting');
     setError(null);
     reset();
 
     try {
       // Request microphone access
+      console.log('Requesting microphone access...');
       const stream = await requestMicrophoneAccess();
+      console.log('Microphone access granted');
 
       // Initialize audio context
       const audioManager = AudioContextManager.getInstance();
@@ -71,16 +74,18 @@ export function VocalRangeTracker() {
 
       // Initialize pitch detector
       const detector = new PitchDetector(audioManager, {
-        confidenceThreshold: 0.9,
-        amplitudeThreshold: 0.01,
+        confidenceThreshold: 0.85,
+        amplitudeThreshold: 0.005,
         updateInterval: 50, // 20 times per second
       });
 
       detector.onPitchDetected((frequency) => {
+        console.log('Pitch detected:', frequency);
         if (frequency) {
           setCurrentFrequency(frequency);
 
           const note = frequencyToNote(frequency);
+          console.log('Note:', note);
           if (note) {
             updateLowest(note);
             updateHighest(note);
