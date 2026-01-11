@@ -96,47 +96,48 @@ export class RangeRenderer {
   }
 
   private drawPianoKeyboard(width: number, height: number): void {
-    // Piano keyboard configuration
+    // Piano keyboard configuration - draw octaves vertically
     const startOctave = 2; // C2
-    const endOctave = 6;   // C6
-    const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    const blackKeys = ['C#', 'D#', 'F#', 'G#', 'A#'];
+    const endOctave = 5;   // B5
+    const whiteKeyPattern = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+    const blackKeyPositions: {[key: string]: number} = {
+      'C#': 0.5, 'D#': 1.5, 'F#': 3.5, 'G#': 4.5, 'A#': 5.5
+    };
 
-    // Calculate frequencies for each note
-    const notes: Array<{name: string, octave: number, freq: number, isBlack: boolean}> = [];
+    const octaveHeight = height / (endOctave - startOctave + 1);
+    const whiteKeyWidth = width * 0.15;
+    const blackKeyWidth = whiteKeyWidth * 0.6;
+    const whiteKeyHeight = octaveHeight / 7; // 7 white keys per octave
+
+    // Draw each octave
     for (let octave = startOctave; octave <= endOctave; octave++) {
-      for (const noteName of noteNames) {
-        const freq = this.getNoteFrequency(noteName, octave);
-        if (freq >= 60 && freq <= 1100) { // Filter to vocal range
-          notes.push({
-            name: noteName,
-            octave,
-            freq,
-            isBlack: blackKeys.includes(noteName)
-          });
-        }
-      }
+      const octaveY = height - ((octave - startOctave + 1) * octaveHeight);
+
+      // Draw white keys for this octave
+      whiteKeyPattern.forEach((noteName, index) => {
+        const note = {
+          name: noteName,
+          octave,
+          freq: this.getNoteFrequency(noteName, octave)
+        };
+        const y = octaveY + (index * whiteKeyHeight);
+        this.drawVerticalPianoKey(width - whiteKeyWidth - 10, y, whiteKeyWidth, whiteKeyHeight, note, false);
+      });
+
+      // Draw black keys for this octave
+      Object.entries(blackKeyPositions).forEach(([noteName, position]) => {
+        const note = {
+          name: noteName,
+          octave,
+          freq: this.getNoteFrequency(noteName, octave)
+        };
+        const y = octaveY + (position * whiteKeyHeight);
+        this.drawVerticalPianoKey(width - whiteKeyWidth - 10, y, blackKeyWidth, whiteKeyHeight * 0.7, note, true);
+      });
     }
-
-    // Key dimensions
-    const keyWidth = width * 0.85;
-    const keyHeight = height / notes.filter(n => !n.isBlack).length * 1.4;
-    const blackKeyWidth = keyWidth * 0.6;
-
-    // Draw white keys first
-    notes.filter(n => !n.isBlack).forEach((note) => {
-      const y = frequencyToYPosition(note.freq, height, this.options.minFrequency, this.options.maxFrequency);
-      this.drawPianoKey(5, y - keyHeight / 2, keyWidth, keyHeight, note, false);
-    });
-
-    // Draw black keys on top
-    notes.filter(n => n.isBlack).forEach((note) => {
-      const y = frequencyToYPosition(note.freq, height, this.options.minFrequency, this.options.maxFrequency);
-      this.drawPianoKey(5, y - keyHeight / 2, blackKeyWidth, keyHeight * 0.65, note, true);
-    });
   }
 
-  private drawPianoKey(x: number, y: number, width: number, height: number, note: {name: string, octave: number, freq: number}, isBlack: boolean): void {
+  private drawVerticalPianoKey(x: number, y: number, width: number, height: number, note: {name: string, octave: number, freq: number}, isBlack: boolean): void {
     const isHighlighted = this.highlightedMin !== null &&
                          this.highlightedMax !== null &&
                          note.freq >= this.highlightedMin &&
@@ -152,15 +153,21 @@ export class RangeRenderer {
     this.ctx.fillRect(x, y, width, height);
 
     // Draw key border
-    this.ctx.strokeStyle = isBlack ? '#000000' : '#333333';
-    this.ctx.lineWidth = 1;
+    this.ctx.strokeStyle = isBlack ? '#000' : '#666';
+    this.ctx.lineWidth = isBlack ? 1 : 0.5;
     this.ctx.strokeRect(x, y, width, height);
 
-    // Draw label for C notes
+    // Draw label for C notes (rotate text to be readable)
     if (note.name === 'C' && !isBlack) {
+      this.ctx.save();
+      this.ctx.translate(x + width / 2, y + height / 2);
+      this.ctx.rotate(-Math.PI / 2);
       this.ctx.fillStyle = isHighlighted ? '#ffffff' : '#666666';
-      this.ctx.font = 'bold 10px sans-serif';
-      this.ctx.fillText(`${note.name}${note.octave}`, x + 5, y + height - 5);
+      this.ctx.font = 'bold 9px sans-serif';
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      this.ctx.fillText(`${note.name}${note.octave}`, 0, 0);
+      this.ctx.restore();
     }
   }
 
