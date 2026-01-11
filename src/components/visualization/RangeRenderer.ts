@@ -104,36 +104,42 @@ export class RangeRenderer {
       'C#': 0.5, 'D#': 1.5, 'F#': 3.5, 'G#': 4.5, 'A#': 5.5
     };
 
-    const octaveHeight = height / (endOctave - startOctave + 1);
-    const whiteKeyWidth = width * 0.15;
+    const totalWhiteKeys = (endOctave - startOctave + 1) * 7;
+    const whiteKeyWidth = width * 0.2;
     const blackKeyWidth = whiteKeyWidth * 0.6;
-    const whiteKeyHeight = octaveHeight / 7; // 7 white keys per octave
+    const whiteKeyHeight = height / totalWhiteKeys;
+    const leftEdge = 10; // Left edge of canvas
 
-    // Draw each octave
+    let whiteKeyIndex = 0;
+
+    // Draw each octave from bottom to top
     for (let octave = startOctave; octave <= endOctave; octave++) {
-      const octaveY = height - ((octave - startOctave + 1) * octaveHeight);
-
       // Draw white keys for this octave
-      whiteKeyPattern.forEach((noteName, index) => {
+      whiteKeyPattern.forEach((noteName) => {
         const note = {
           name: noteName,
           octave,
           freq: this.getNoteFrequency(noteName, octave)
         };
-        const y = octaveY + (index * whiteKeyHeight);
-        this.drawVerticalPianoKey(width - whiteKeyWidth - 10, y, whiteKeyWidth, whiteKeyHeight, note, false);
+        const y = height - ((whiteKeyIndex + 1) * whiteKeyHeight);
+        this.drawVerticalPianoKey(leftEdge, y, whiteKeyWidth, whiteKeyHeight, note, false);
+        whiteKeyIndex++;
       });
+    }
 
-      // Draw black keys for this octave
+    // Draw black keys on top (second pass for proper layering)
+    whiteKeyIndex = 0;
+    for (let octave = startOctave; octave <= endOctave; octave++) {
       Object.entries(blackKeyPositions).forEach(([noteName, position]) => {
         const note = {
           name: noteName,
           octave,
           freq: this.getNoteFrequency(noteName, octave)
         };
-        const y = octaveY + (position * whiteKeyHeight);
-        this.drawVerticalPianoKey(width - whiteKeyWidth - 10, y, blackKeyWidth, whiteKeyHeight * 0.7, note, true);
+        const y = height - ((whiteKeyIndex + position + 1) * whiteKeyHeight);
+        this.drawVerticalPianoKey(leftEdge, y, blackKeyWidth, whiteKeyHeight * 0.7, note, true);
       });
+      whiteKeyIndex += 7; // Move to next octave
     }
   }
 
