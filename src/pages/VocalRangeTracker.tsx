@@ -164,43 +164,15 @@ export function VocalRangeTracker() {
                       {frequencyToNote(currentFrequency)?.name}
                       {frequencyToNote(currentFrequency)?.octave}
                     </p>
-                    <p className="text-sm text-neon-blue-400">
-                      {currentFrequency.toFixed(1)} Hz
-                    </p>
                   </div>
                 )}
 
                 {vocalRangeState.lowestNote && vocalRangeState.highestNote && (
-                  <div className="space-y-4">
-                    <div className="p-4 bg-neon-blue-800 rounded">
-                      <p className="text-sm text-neon-blue-300">Lowest Note:</p>
-                      <p className="text-2xl font-bold">
-                        {formatNote(vocalRangeState.lowestNote)}
-                      </p>
-                      <p className="text-sm text-neon-blue-400">
-                        {vocalRangeState.lowestNote.frequency.toFixed(1)} Hz
-                      </p>
-                    </div>
-
-                    <div className="p-4 bg-neon-blue-800 rounded">
-                      <p className="text-sm text-neon-blue-300">Highest Note:</p>
-                      <p className="text-2xl font-bold">
-                        {formatNote(vocalRangeState.highestNote)}
-                      </p>
-                      <p className="text-sm text-neon-blue-400">
-                        {vocalRangeState.highestNote.frequency.toFixed(1)} Hz
-                      </p>
-                    </div>
-
-                    <div className="p-4 bg-neon-blue-800 rounded">
-                      <p className="text-sm text-neon-blue-300">Range:</p>
-                      <p className="text-3xl font-bold text-neon-blue-500">
-                        {vocalRangeState.rangeInSemitones} semitones
-                      </p>
-                      <p className="text-sm text-neon-blue-400">
-                        ({(vocalRangeState.rangeInSemitones / 12).toFixed(1)} octaves)
-                      </p>
-                    </div>
+                  <div className="p-6 bg-neon-blue-800 rounded">
+                    <p className="text-sm text-neon-blue-300 mb-3">Your Range:</p>
+                    <p className="text-4xl font-bold text-neon-blue-500 text-center">
+                      {formatNote(vocalRangeState.lowestNote)} ~ {formatNote(vocalRangeState.highestNote)}
+                    </p>
                   </div>
                 )}
               </div>
