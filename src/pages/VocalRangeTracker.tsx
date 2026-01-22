@@ -130,16 +130,16 @@ export function VocalRangeTracker() {
   };
 
   return (
-    <div className="min-h-screen bg-neon-blue-950 text-white flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-dark text-white flex flex-col items-center justify-center p-4">
       <div className="max-w-4xl w-full">
-        <h1 className="text-4xl font-bold text-center mb-2">
+        <h1 className="text-5xl font-bold text-center mb-2 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
           Vocal Range Tracker
         </h1>
-        <p className="text-center text-neon-blue-300 mb-8">
+        <p className="text-center text-purple-200 mb-8 text-lg">
           Measure your vocal range with real-time pitch detection
         </p>
 
-        <div className="bg-neon-blue-900 rounded-lg p-6 mb-6">
+        <div className="bg-gradient-to-br from-purple-900/30 via-pink-900/20 to-purple-900/30 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-purple-500/30 shadow-glow-lg">
           <div className="flex flex-col md:flex-row gap-6">
             {/* Canvas Visualization */}
             <div className="flex-1">
@@ -147,7 +147,7 @@ export function VocalRangeTracker() {
                 ref={canvasRef}
                 width={400}
                 height={600}
-                className="w-full border-2 border-neon-blue-500 rounded"
+                className="w-full border-2 border-purple-500/50 rounded-xl shadow-glow"
                 style={{ maxHeight: '600px' }}
               />
             </div>
@@ -155,12 +155,12 @@ export function VocalRangeTracker() {
             {/* Info Panel */}
             <div className="flex-1 flex flex-col justify-between">
               <div>
-                <h2 className="text-2xl font-bold mb-4">Measurement</h2>
+                <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Measurement</h2>
 
                 {measurementState === 'measuring' && currentFrequency && (
-                  <div className="mb-4 p-4 bg-neon-blue-800 rounded">
-                    <p className="text-sm text-neon-blue-300">Current Note:</p>
-                    <p className="text-3xl font-bold text-neon-blue-500">
+                  <div className="mb-4 p-4 bg-gradient-to-br from-purple-800/40 to-pink-800/40 rounded-xl border border-purple-400/30 shadow-glow">
+                    <p className="text-sm text-purple-300">Current Note:</p>
+                    <p className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                       {frequencyToNote(currentFrequency)?.name}
                       {frequencyToNote(currentFrequency)?.octave}
                     </p>
@@ -168,9 +168,9 @@ export function VocalRangeTracker() {
                 )}
 
                 {vocalRangeState.lowestNote && vocalRangeState.highestNote && (
-                  <div className="p-6 bg-neon-blue-800 rounded">
-                    <p className="text-sm text-neon-blue-300 mb-3">Your Range:</p>
-                    <p className="text-4xl font-bold text-neon-blue-500 text-center">
+                  <div className="p-6 bg-gradient-to-br from-purple-800/40 to-pink-800/40 rounded-xl border border-purple-400/30 shadow-glow">
+                    <p className="text-sm text-purple-300 mb-3">Your Range:</p>
+                    <p className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent text-center">
                       {formatNote(vocalRangeState.lowestNote)} ~ {formatNote(vocalRangeState.highestNote)}
                     </p>
                   </div>
@@ -182,7 +182,7 @@ export function VocalRangeTracker() {
                 {measurementState === 'idle' && (
                   <button
                     onClick={startMeasurement}
-                    className="w-full py-3 bg-neon-blue-500 hover:bg-neon-blue-600 rounded-lg font-bold transition"
+                    className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl font-bold transition shadow-glow-lg"
                   >
                     Start Measurement
                   </button>
@@ -190,14 +190,14 @@ export function VocalRangeTracker() {
 
                 {measurementState === 'requesting' && (
                   <div className="text-center py-3">
-                    <p className="text-neon-blue-400">Requesting microphone access...</p>
+                    <p className="text-purple-400">Requesting microphone access...</p>
                   </div>
                 )}
 
                 {measurementState === 'measuring' && (
                   <button
                     onClick={stopMeasurement}
-                    className="w-full py-3 bg-red-500 hover:bg-red-600 rounded-lg font-bold transition"
+                    className="w-full py-3 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 rounded-xl font-bold transition shadow-glow-pink"
                   >
                     Stop Measurement
                   </button>
@@ -207,13 +207,13 @@ export function VocalRangeTracker() {
                   <>
                     <button
                       onClick={saveMeasurement}
-                      className="w-full py-3 bg-green-500 hover:bg-green-600 rounded-lg font-bold transition"
+                      className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-xl font-bold transition shadow-glow"
                     >
                       Save Measurement
                     </button>
                     <button
                       onClick={resetMeasurement}
-                      className="w-full py-3 bg-neon-blue-700 hover:bg-neon-blue-800 rounded-lg font-bold transition"
+                      className="w-full py-3 bg-gradient-to-r from-purple-700 to-pink-700 hover:from-purple-800 hover:to-pink-800 rounded-xl font-bold transition"
                     >
                       New Measurement
                     </button>
@@ -222,13 +222,13 @@ export function VocalRangeTracker() {
 
                 {measurementState === 'error' && (
                   <>
-                    <div className="p-4 bg-red-900 border border-red-500 rounded text-red-200">
+                    <div className="p-4 bg-gradient-to-br from-red-900/40 to-pink-900/40 border border-red-500/50 rounded-xl text-red-200 shadow-glow-pink">
                       <p className="font-bold mb-1">Error</p>
                       <p className="text-sm">{error}</p>
                     </div>
                     <button
                       onClick={resetMeasurement}
-                      className="w-full py-3 bg-neon-blue-700 hover:bg-neon-blue-800 rounded-lg font-bold transition"
+                      className="w-full py-3 bg-gradient-to-r from-purple-700 to-pink-700 hover:from-purple-800 hover:to-pink-800 rounded-xl font-bold transition"
                     >
                       Try Again
                     </button>
@@ -240,9 +240,9 @@ export function VocalRangeTracker() {
         </div>
 
         {/* Instructions */}
-        <div className="bg-neon-blue-900 rounded-lg p-6">
-          <h3 className="text-xl font-bold mb-3">How to use:</h3>
-          <ol className="list-decimal list-inside space-y-2 text-neon-blue-300">
+        <div className="bg-gradient-to-br from-purple-900/30 via-pink-900/20 to-purple-900/30 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/30 shadow-glow">
+          <h3 className="text-xl font-bold mb-3 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">How to use:</h3>
+          <ol className="list-decimal list-inside space-y-2 text-purple-200">
             <li>Click "Start Measurement" and allow microphone access</li>
             <li>Sing your lowest comfortable note and hold it for 2-3 seconds</li>
             <li>Sing your highest comfortable note and hold it for 2-3 seconds</li>
